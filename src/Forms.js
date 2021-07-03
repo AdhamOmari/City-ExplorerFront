@@ -92,6 +92,7 @@ export class Forms extends Component {
                 moveName:axiosMovesData.data,
                 alerte: false,
             })
+            
             console.log(this.state.moviesArr)
         }
         catch (massege) {
