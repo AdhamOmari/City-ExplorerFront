@@ -3,6 +3,7 @@ import { Form, Button, Image } from 'react-bootstrap'
 import Apifiled from './Apifiled';
 import axios from 'axios'
 import Weather from './Components/Weather';
+import Movies from './Components/Movies';
 export class Forms extends Component {
     constructor(props) {
         super(props);
@@ -16,15 +17,17 @@ export class Forms extends Component {
             masseg: "",
             weatherData: [],
             alerte:false,
-            massege:''
+            massege:'',
+            moviesArr:[],
+            moveName: "",
         }
 
     }
     ghngeHandlerSubmit = (e) => {
         console.log(e.target.value)
         this.setState({
-            displayName: e.target.value
-
+            displayName: e.target.value,
+            moveName:e.target.value
         });
         console.log(e.target.value)
 
@@ -36,9 +39,10 @@ export class Forms extends Component {
         try {
             console.log(process.env.REACT_APP_BACKEND_URL)
             console.log(this.state.latitude)
-            let axiosResponse = await axios.get(`https://eu1.locationiq.com/v1/search.php?key=pk.c29ec7745248a3f12771c0a5c3f3fd9e&q=${this.state.displayName}&format=json`)
+            let axiosResponse = await axios.get(`https://eu1.locationiq.com/v1/search.php?key=${process.env.REACT_APP_LOCATIOIQ_API_KEY}&q=${this.state.displayName}&format=json`)
             console.log(axiosResponse)
             this.setState({
+                displayName:axiosResponse.data[0].display_name,
                 longitude: axiosResponse.data[0].lon,
                 latitude: axiosResponse.data[0].lat,
                 display: true,
@@ -81,6 +85,23 @@ export class Forms extends Component {
                 display: false
             })
         }
+        try {
+            let axiosMovesData = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/movies?movie=${this.state.moveName}`)
+            this.setState({
+                moviesArr: axiosMovesData.data,
+                moveName:axiosMovesData.data,
+                alerte: false,
+            })
+            console.log(this.state.moviesArr)
+        }
+        catch (massege) {
+            this.setState({
+
+                alerte: true,
+                massege: 'please enter valid city name',
+                display: false
+            })
+        }
 
     }
 
@@ -107,8 +128,6 @@ export class Forms extends Component {
                                 {this.state.displayName}
                                 {this.state.latitude}
                                 {this.state.longitude}
-
-
                             </p>
                             <Image alt="" src={`https://maps.locationiq.com/v3/staticmap?key=pk.c29ec7745248a3f12771c0a5c3f3fd9e&center=${this.state.latitude},${this.state.longitude}&zoom=10`} rounded />
 
@@ -123,6 +142,14 @@ export class Forms extends Component {
                             date={weatherData.date} />
                     })
                     }
+                    {this.state.moviesArr.map(moviesArr => {
+                        return <Movies key="{tow}" vots={moviesArr.vots}
+                            date={moviesArr.data} img={moviesArr.img}
+                            
+                             />
+                    })
+                    }
+                    
                 </>
             )
         }
